@@ -2,11 +2,14 @@
 <html lang="he">
 <head>
   <meta charset="UTF-8" />
-  <title>הספירה של יעל – ללא סופ"ש</title>
+  <title>הספירה של יעל – ללא סופ"ש, עם אפקטים</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- animate.css לאנימציות בסיסיות -->
+  <!-- ספרייה לאנימציות css -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+  <!-- ספרייה ל-Confetti (Canvas Confetti) -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 
   <style>
     body {
@@ -17,33 +20,29 @@
       background-color: #f7f7f7;
     }
 
-    /* מכלול ראשי – מרכז את התוכן */
-    .main-layout {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      min-height: 100vh;
-      /* יוצרים חלל עבור התוכן והטבלא */
-    }
-
-    /* אזור לתמונות (אחת מימין ואחת משמאל) */
+    /* חלוקה: תמונות למעלה, תוכן במרכז */
     .top-images-container {
       width: 100%;
       display: flex;
-      justify-content: space-between; /* תמונות בקצוות */
+      justify-content: space-between;
       align-items: center;
       padding: 10px;
     }
     .top-images-container img {
-      /* שינוי הגודל בהתאם לצורך שלך */
       width: 250px;
       height: auto;
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0,0,0,0.3);
     }
 
-    /* כותרת עליונה וטקסט עידוד */
+    .main-layout {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
     header {
       text-align: center;
       margin: 20px auto;
@@ -59,7 +58,6 @@
       color: #8e24aa;
     }
 
-    /* מיכל מרכזי לספירה לאחור ופרטים נוספים */
     .container {
       background-color: #fff;
       border-radius: 10px;
@@ -97,7 +95,7 @@
       color: #f06292;
     }
 
-    /* Progress Bar נשאר מהדוגמאות הקודמות, אם תרצו */
+    /* Progress Bar */
     .progress-container {
       width: 100%;
       margin: 20px auto;
@@ -114,7 +112,6 @@
       transition: width 1s ease;
     }
 
-    /* מידע על שבוע הריון + גודל עובר */
     .week-info, .baby-size {
       text-align: center;
       margin: 5px 0;
@@ -126,7 +123,7 @@
       margin-bottom: 15px;
     }
 
-    /* טבלת ימים (ללא סופ"ש) - אם רוצים לשמור */
+    /* טבלת ימים ללא שישי-שבת */
     .grid-title {
       text-align: center;
       margin-top: 20px;
@@ -160,26 +157,24 @@
       color: #fff;
       text-decoration: line-through;
     }
-
   </style>
 </head>
 <body>
-  <!-- שתי תמונות למעלה, בקצוות -->
+  <!-- שתי תמונות בקצוות העליונים -->
   <div class="top-images-container">
-    <!-- תמונה משמאל -->
+    <!-- החלף בשמות/תמונות משלך -->
     <img src="1212.png" alt="יעל משמאל" />
-    <!-- תמונה מימין -->
     <img src="1212.png" alt="יעל מימין" />
   </div>
 
-  <!-- פריסת התוכן הראשי -->
   <div class="main-layout">
-    <header class="animate__animated animate__zoomIn">
+    <header id="headerArea" class="animate__animated">
       <h1>הספירה של יעל עד ללידה (ללא סופ"ש)</h1>
-      <div id="quote" class="encouraging-message animate__animated animate__fadeIn"></div>
+      <!-- המשפט המעודד יוצג עם אפקט bounce -->
+      <div id="quote" class="encouraging-message animate__animated"></div>
     </header>
 
-    <div class="container animate__animated animate__fadeInUp">
+    <div id="mainContainer" class="container animate__animated">
       <!-- ספירה לאחור (ימי עבודה) -->
       <div class="countdown-title">ימי עבודה שנותרו עד 2 בספטמבר 2025:</div>
       <div class="countdown" id="countdown">
@@ -201,16 +196,16 @@
         </div>
       </div>
 
-      <!-- Progress Bar (אופציונלי) -->
+      <!-- Progress Bar -->
       <div class="progress-container">
         <div class="progress-bar" id="progressBar"></div>
       </div>
 
-      <!-- שבוע הריון וגודל העובר -->
+      <!-- שבוע הריון + גודל העובר -->
       <div class="week-info" id="weekInfo"></div>
       <div class="baby-size" id="babySize"></div>
 
-      <!-- טבלת ייאוש (ללא שישי-שבת) אם עדיין רוצים -->
+      <!-- טבלת ימי עבודה (ללא סופ"ש) -->
       <div class="grid-title">טבלת ימי עבודה (ללא סופ"ש)</div>
       <div class="grid" id="daysGrid"></div>
     </div>
@@ -219,11 +214,11 @@
   <script>
     /* הגדרות תאריך יעד */
     const targetDate = new Date(2025, 8, 2); // 2 בספטמבר 2025
-    // חישוב תאריך התחלה כ-280 יום לפני
+    // 280 ימים אחורה
     const daysOfPregnancy = 280;
     const startDate = new Date(targetDate.getTime() - daysOfPregnancy * 24 * 60 * 60 * 1000);
 
-    /* הודעות מעודדות אקראיות */
+    /* הודעות מעודדות */
     const messages = [
       "כל יום מקרב אותנו לרגע המיוחל!",
       "זכרי לנוח ולהנות מהדרך – את עושה עבודה מדהימה!",
@@ -232,10 +227,8 @@
       "תהני מכל רגע – ואוטוטו זה קורה!",
       "ההריון הזה הוא מסע מופלא – את נפלאה!"
     ];
-    document.getElementById("quote").textContent =
-      messages[Math.floor(Math.random() * messages.length)];
 
-    /* מידע "גודל העובר" לפי שבוע */
+    /* מידע גודל העובר */
     const babySizeData = [
       { week: 4, description: "גרגר שומשום" },
       { week: 6, description: "גודל עדשה" },
@@ -249,13 +242,12 @@
       { week: 36, description: "גודל אבטיח קטן" },
     ];
 
-    /* חישוב "ימי עבודה" בין שני תאריכים (לא כולל שישי-שבת) */
+    /* פונקציה לחישוב ימי עבודה (ללא שישי-שבת) */
     function businessDaysBetween(start, end) {
       let count = 0;
       let current = new Date(start);
       while (current < end) {
-        const dayOfWeek = current.getDay(); // 0=ראשון,1=שני,2=שלישי,3=רביעי,4=חמישי,5=שישי,6=שבת
-        // אם היום הוא ראשון-חמישי => נחשב
+        const dayOfWeek = current.getDay();
         if (dayOfWeek !== 5 && dayOfWeek !== 6) {
           count++;
         }
@@ -264,11 +256,10 @@
       return count;
     }
 
-    /* ספירה לאחור (ימי עבודה במקום כולל) */
+    /* ספירה לאחור לפי ימי עבודה */
     function updateCountdown() {
       const now = new Date();
       if (now >= targetDate) {
-        // אם כבר עבר התאריך...
         document.getElementById('days').textContent = 0;
         document.getElementById('hours').textContent = 0;
         document.getElementById('minutes').textContent = 0;
@@ -276,18 +267,16 @@
         return;
       }
 
-      // ימי עבודה שנותרו
       const workdaysLeft = businessDaysBetween(now, targetDate);
 
-      // אפשר, לצורך עניין, להשאיר שעות/דקות/שניות כ-0
-      // כי מבחינת "ימי עבודה" זה לא לגמרי הגיוני לשלב סופ"ש...
       document.getElementById('days').textContent = workdaysLeft;
+      // נשאיר שעות/דקות/שניות 0, כי לא מחשבים חצי ימי עבודה...
       document.getElementById('hours').textContent = 0;
       document.getElementById('minutes').textContent = 0;
       document.getElementById('seconds').textContent = 0;
     }
 
-    /* Progress Bar (עדיין בהתייחסות כוללת) */
+    /* Progress Bar (כללי, לפי תאריכים) */
     function updateProgressBar() {
       const now = new Date();
       const totalDuration = targetDate - startDate;
@@ -300,7 +289,7 @@
       document.getElementById("progressBar").style.width = progressPercentage + "%";
     }
 
-    /* שבוע הריון + גודל עובר (לפי זמן אמיתי) */
+    /* שבוע הריון + גודל העובר */
     function updateWeekInfo() {
       const now = new Date();
       const oneWeek = 1000 * 60 * 60 * 24 * 7;
@@ -326,7 +315,7 @@
       }
     }
 
-    /* טבלת ייאוש: רק ימי עבודה (ללא שישי שבת) */
+    /* טבלת ימי עבודה (ללא שישי-שבת) */
     function generateDaysGrid() {
       const grid = document.getElementById('daysGrid');
       grid.innerHTML = "";
@@ -341,46 +330,71 @@
           let dayElem = document.createElement("div");
           dayElem.classList.add("day");
 
-          // אפשר להציג תאריך ב-dd/mm
+          // לדוגמה: תצוגת dd/mm
           const d = current.getDate();
           const m = current.getMonth() + 1;
           dayElem.textContent = d + "/" + m;
 
-          // סימון אם עבר
           if (current < now) {
             dayElem.classList.add("crossed");
           }
 
-          // אפשר לסמן/לבטל ידנית
           dayElem.addEventListener("click", () => {
             dayElem.classList.toggle("crossed");
           });
 
           grid.appendChild(dayElem);
         }
-        // מעבר ליום הבא
         current.setDate(current.getDate() + 1);
       }
     }
 
-    // איגוד פעולות לרענון
+    /* רענון */
     function refreshAll() {
       updateCountdown();
       updateProgressBar();
       updateWeekInfo();
     }
 
-    // קריאה ראשונית
-    refreshAll();
-    generateDaysGrid();
+    /* אפקט קונפטי (Canvas Confetti) */
+    function runConfetti() {
+      // חלקיקי קונפטי בספאם
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+    }
 
-    // רענון ספירה לאחור ו-Progress Bar כל שנייה
-    setInterval(refreshAll, 1000);
+    // בעת טעינת הדף
+    window.addEventListener('load', () => {
+      // 1) הגדר מסר מעודד
+      const randomIndex = Math.floor(Math.random() * messages.length);
+      const quoteElem = document.getElementById("quote");
+      quoteElem.textContent = messages[randomIndex];
 
-    // רענון טבלת ימים כל שעה
+      // 2) אנימציות כניסה: ניישם על container וכותרת
+      // אפשר לשחק עם סוגי אנימציות מ-animate.css (bounce, fadeIn, וכו')
+      const headerArea = document.getElementById("headerArea");
+      headerArea.classList.add('animate__fadeInDown');
+
+      const mainContainer = document.getElementById("mainContainer");
+      mainContainer.classList.add('animate__fadeInUp');
+
+      // משפט מעודד עם bounce
+      quoteElem.classList.add('animate__bounceIn');
+
+      // 3) נפעיל קונפטי קטן
+      runConfetti();
+
+      // 4) רענון ראשוני + הגריד
+      refreshAll();
+      generateDaysGrid();
+    });
+
+    // עדכונים מחזוריים
+    setInterval(refreshAll, 1000); // ספירה לאחור, progress
     setInterval(generateDaysGrid, 1000 * 60 * 60);
-
-    // רענון שבוע הריון פעם ביום
     setInterval(updateWeekInfo, 1000 * 60 * 60 * 24);
   </script>
 </body>
