@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+  <meta charset="UTF-8" />
+  <title>טבלת ייאוש לחופשת לידה</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- ניתן להוסיף כאן link ל-CSS חיצוני, פונטים וכדומה -->
+  <style>
+    body {
+      direction: rtl;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 20px;
+      background-color: #f7f7f7;
+    }
+
+    .countdown-container {
+      margin-top: 50px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      display: inline-block;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .countdown-title {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    .countdown {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      font-size: 18px;
+      color: #333;
+    }
+
+    .countdown div {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 60px;
+    }
+
+    .countdown span {
+      font-size: 32px;
+      font-weight: bold;
+      color: #f06292;
+    }
+
+    .grid {
+      margin-top: 30px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+      gap: 5px;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .day {
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 10px 0;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .day:hover {
+      background-color: #fce4ec;
+    }
+
+    .day.crossed {
+      background-color: #f06292;
+      color: #fff;
+      text-decoration: line-through;
+    }
+  </style>
+</head>
+<body>
+  <h1>טבלת ייאוש לחופשת לידה</h1>
+
+  <!-- מיכל הספירה לאחור -->
+  <div class="countdown-container">
+    <div class="countdown-title">נותרו עד חופשת הלידה:</div>
+    <div class="countdown" id="countdown">
+      <!-- כאן נשבץ את הימים, השעות וכו' -->
+      <div>
+        <span id="days">0</span>
+        ימים
+      </div>
+      <div>
+        <span id="hours">0</span>
+        שעות
+      </div>
+      <div>
+        <span id="minutes">0</span>
+        דקות
+      </div>
+      <div>
+        <span id="seconds">0</span>
+        שניות
+      </div>
+    </div>
+  </div>
+
+  <!-- טבלת ייאוש: ריבועים/תאים המייצגים כל יום שנותר עד התאריך -->
+  <div class="grid" id="daysGrid"></div>
+
+  <script>
+    // הגדר כאן את תאריך היעד - לדוגמה: 1 בספטמבר 2025, 08:00
+    // שים לב שב-JavaScript החודשים נספרים מ-0 (ינואר) עד 11 (דצמבר)
+    const targetDate = new Date(2025, 8, 1, 8, 0, 0); // 1 בספטמבר 2025 בשעה 08:00
+
+    // פונקציה לחישוב זמן שנותר
+    function updateCountdown() {
+      const now = new Date();
+      const difference = targetDate - now;
+
+      if (difference <= 0) {
+        // אם עבר התאריך
+        document.getElementById('days').textContent = 0;
+        document.getElementById('hours').textContent = 0;
+        document.getElementById('minutes').textContent = 0;
+        document.getElementById('seconds').textContent = 0;
+        return;
+      }
+
+      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((difference / (1000 * 60)) % 60);
+      const seconds = Math.floor((difference / 1000) % 60);
+
+      document.getElementById('days').textContent = days;
+      document.getElementById('hours').textContent = hours;
+      document.getElementById('minutes').textContent = minutes;
+      document.getElementById('seconds').textContent = seconds;
+    }
+
+    // יצירת טבלת ייאוש - תא לכל יום
+    function generateDaysGrid() {
+      const now = new Date();
+      const differenceInDays = Math.ceil((targetDate - now) / (1000 * 60 * 60 * 24));
+
+      const daysGrid = document.getElementById("daysGrid");
+      daysGrid.innerHTML = ""; // איפוס התוכן במקרה ומריצים שוב
+
+      // אם יוצא מספר שלילי (כבר עברנו את התאריך), לא מציגים
+      if (differenceInDays <= 0) return;
+
+      for (let i = 1; i <= differenceInDays; i++) {
+        const dayElem = document.createElement("div");
+        dayElem.classList.add("day");
+        dayElem.textContent = i;
+
+        // אפשר לאפשר "סימון" היום כאשר לוחצים
+        dayElem.addEventListener("click", () => {
+          dayElem.classList.toggle("crossed");
+        });
+
+        daysGrid.appendChild(dayElem);
+      }
+    }
+
+    // עדכון ראשוני
+    updateCountdown();
+    generateDaysGrid();
+
+    // עדכון כל שנייה (ניתן לשנות לתדירות נמוכה יותר אם רוצים)
+    setInterval(updateCountdown, 1000);
+
+    // אפשרות לעדכון טבלת הימים כל יום בחצות (כאן לדוגמה פעם בשעה נעדכן)
+    setInterval(generateDaysGrid, 1000 * 60 * 60);
+  </script>
+</body>
+</html>
