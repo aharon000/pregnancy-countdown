@@ -2,63 +2,135 @@
 <html lang="he">
 <head>
   <meta charset="UTF-8" />
-  <title>טבלת ייאוש לחופשת לידה</title>
+  <title>טבלת ייאוש משודרגת</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- ניתן להוסיף כאן link ל-CSS חיצוני, פונטים וכדומה -->
+
+  <!-- ספרייה לאנימציות מוכנות (animate.css) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
   <style>
+    /* -- רקע וקונפיגורציית בסיס -- */
     body {
+      margin: 0;
+      padding: 0;
       direction: rtl;
-      font-family: Arial, sans-serif;
+      font-family: "Alef", sans-serif;
+      background: url('https://via.placeholder.com/1200x800?text=Baby+Background') no-repeat center center fixed;
+      background-size: cover;
+      color: #333;
+    }
+    /* שכבה חצי שקופה כדי שיהיה קל לקרוא טקסט */
+    .overlay {
+      background-color: rgba(255, 255, 255, 0.8);
+      min-height: 100vh; /* מכסה את כל הדף */
+      padding-bottom: 50px;
+    }
+
+    /* -- כותרת עליונה -- */
+    header {
       text-align: center;
-      margin: 20px;
-      background-color: #f7f7f7;
-    }
-
-    .countdown-container {
-      margin-top: 50px;
-      background: #fff;
-      padding: 20px;
-      border-radius: 10px;
-      display: inline-block;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-
-    .countdown-title {
-      font-size: 24px;
+      padding: 30px 20px;
+      background-color: rgba(255, 255, 255, 0.7);
       margin-bottom: 20px;
     }
+    header h1 {
+      margin: 0;
+      font-size: 2em;
+      color: #f06292;
+    }
+    /* הודעה מעודדת אקראית */
+    .encouraging-message {
+      margin: 10px 0;
+      font-size: 1.2em;
+      color: #8e24aa;
+    }
 
+    /* -- תוכן מרכזי -- */
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    }
+
+    /* ספירה לאחור (ימים, שעות...) */
+    .countdown-title {
+      text-align: center;
+      font-size: 1.5em;
+      margin-bottom: 15px;
+      color: #d81b60;
+    }
     .countdown {
       display: flex;
       justify-content: center;
       gap: 15px;
       font-size: 18px;
       color: #333;
+      margin-bottom: 20px;
     }
-
     .countdown div {
       display: flex;
       flex-direction: column;
       align-items: center;
       min-width: 60px;
     }
-
     .countdown span {
       font-size: 32px;
       font-weight: bold;
       color: #f06292;
     }
 
-    .grid {
+    /* בר התקדמות (Progress Bar) */
+    .progress-container {
+      width: 100%;
+      margin: 20px auto;
+      background-color: #eee;
+      border-radius: 25px;
+      height: 30px;
+      overflow: hidden;
+      box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
+    }
+    .progress-bar {
+      background: linear-gradient(to right, #f48fb1, #f06292);
+      height: 100%;
+      width: 0%;
+      transition: width 1s ease;
+    }
+
+    /* שבוע הריון + גודל העובר */
+    .week-info {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 1.2em;
+      color: #5d4037;
+    }
+    .baby-size {
+      text-align: center;
+      margin-top: 5px;
+      font-size: 1em;
+      color: #4e342e;
+      margin-bottom: 20px;
+    }
+
+    /* טבלת ייאוש (Grid) */
+    .grid-title {
+      text-align: center;
       margin-top: 30px;
+      font-size: 1.3em;
+      color: #d81b60;
+    }
+    .grid {
+      margin-top: 15px;
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
       gap: 5px;
       max-width: 400px;
       margin-left: auto;
       margin-right: auto;
+      margin-bottom: 20px;
     }
-
     .day {
       background-color: #fff;
       border: 1px solid #ddd;
@@ -66,12 +138,11 @@
       padding: 10px 0;
       cursor: pointer;
       transition: background-color 0.3s;
+      text-align: center;
     }
-
     .day:hover {
       background-color: #fce4ec;
     }
-
     .day.crossed {
       background-color: #f06292;
       color: #fff;
@@ -79,75 +150,181 @@
     }
   </style>
 </head>
-<body>
-  <h1>טבלת ייאוש לחופשת לידה</h1>
 
-  <!-- מיכל הספירה לאחור -->
-  <div class="countdown-container">
-    <div class="countdown-title">נותרו עד חופשת הלידה:</div>
-    <div class="countdown" id="countdown">
-      <!-- כאן נשבץ את הימים, השעות וכו' -->
-      <div>
-        <span id="days">0</span>
-        ימים
+<body>
+  <div class="overlay">
+    <!-- כותרת עליונה -->
+    <header>
+      <h1 class="animate__animated animate__zoomIn">טבלת ייאוש משודרגת</h1>
+      <!-- הודעה מעודדת אקראית -->
+      <div id="quote" class="encouraging-message animate__animated animate__fadeIn"></div>
+    </header>
+
+    <!-- אזור התוכן המרכזי -->
+    <div class="container animate__animated animate__fadeInUp">
+      <!-- ספירה לאחור -->
+      <div class="countdown-title">נותרו עד לתאריך היעד:</div>
+      <div class="countdown" id="countdown">
+        <div>
+          <span id="days">0</span>
+          ימים
+        </div>
+        <div>
+          <span id="hours">0</span>
+          שעות
+        </div>
+        <div>
+          <span id="minutes">0</span>
+          דקות
+        </div>
+        <div>
+          <span id="seconds">0</span>
+          שניות
+        </div>
       </div>
-      <div>
-        <span id="hours">0</span>
-        שעות
+
+      <!-- Progress Bar -->
+      <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
       </div>
-      <div>
-        <span id="minutes">0</span>
-        דקות
-      </div>
-      <div>
-        <span id="seconds">0</span>
-        שניות
-      </div>
+
+      <!-- שבוע הריון + גודל העובר -->
+      <div class="week-info" id="weekInfo"></div>
+      <div class="baby-size" id="babySize"></div>
+
+      <!-- טבלת ייאוש (ימים) -->
+      <div class="grid-title">טבלת הימים שנותרו (לחיצה מסמנת שעבר)</div>
+      <div class="grid" id="daysGrid"></div>
     </div>
   </div>
 
-  <!-- טבלת ייאוש: ריבועים/תאים המייצגים כל יום שנותר עד התאריך -->
-  <div class="grid" id="daysGrid"></div>
-
   <script>
-    // הגדר כאן את תאריך היעד - לדוגמה: 1 בספטמבר 2025, 08:00
-    // שים לב שב-JavaScript החודשים נספרים מ-0 (ינואר) עד 11 (דצמבר)
-    const targetDate = new Date(2025, 8, 1, 8, 0, 0); // 1 בספטמבר 2025 בשעה 08:00
+    /* --------------------------
+       הגדרות תאריכים לדוגמה
+    // תאריך לידה משוער (Target date)
+    const targetDate = new Date(2025, 8, 1);
 
-    // פונקציה לחישוב זמן שנותר
+    // 40 שבועות = 280 ימים (אם רוצים 38 או 41, משחקים עם המספר)
+    const daysOfPregnancy = 280;
+    // חישוב תאריך התחלה
+    const startDate = new Date(targetDate.getTime() - daysOfPregnancy * 24 * 60 * 60 * 1000);
+
+
+    /* --------------------------
+       הודעות מעודדות אקראיות
+       -------------------------- */
+    const messages = [
+      "כל יום מקרב אותנו לרגע המיוחל!",
+      "זיכרי לנוח ולהנות מהדרך – את עושה עבודה מדהימה!",
+      "עוד קצת ותוכלי להתפנק בחופשת הלידה!",
+      "כל בעיטה קטנה מזכירה שאת יוצרת חיים חדשים!",
+      "תהני מכל רגע – והנה, אנחנו כמעט שם!"
+    ];
+    const randomIndex = Math.floor(Math.random() * messages.length);
+    document.getElementById("quote").textContent = messages[randomIndex];
+
+    /* --------------------------
+       נתונים על "גודל העובר" לפי שבוע
+       (דוגמה מאוד גנרית)
+       -------------------------- */
+    const babySizeData = [
+      { week: 4, description: "גרגר שומשום" },
+      { week: 6, description: "גודל עדשה" },
+      { week: 10, description: "גודל תות שדה" },
+      { week: 14, description: "גודל לימון" },
+      { week: 18, description: "גודל פלפל" },
+      { week: 20, description: "גודל בננה" },
+      { week: 24, description: "גודל קלח תירס" },
+      { week: 28, description: "גודל חציל קטן" },
+      { week: 32, description: "גודל דלעת בינונית" },
+      { week: 36, description: "גודל אבטיח קטן" },
+    ];
+
+    /* --------------------------
+       חישוב ספירה לאחור
+       -------------------------- */
     function updateCountdown() {
       const now = new Date();
-      const difference = targetDate - now;
+      const diff = targetDate - now;
 
-      if (difference <= 0) {
+      if (diff <= 0) {
         // אם עבר התאריך
-        document.getElementById('days').textContent = 0;
-        document.getElementById('hours').textContent = 0;
-        document.getElementById('minutes').textContent = 0;
-        document.getElementById('seconds').textContent = 0;
+        document.getElementById("days").textContent = 0;
+        document.getElementById("hours").textContent = 0;
+        document.getElementById("minutes").textContent = 0;
+        document.getElementById("seconds").textContent = 0;
         return;
       }
 
-      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
-      const minutes = Math.floor((difference / (1000 * 60)) % 60);
-      const seconds = Math.floor((difference / 1000) % 60);
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((diff / (1000 * 60)) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
 
-      document.getElementById('days').textContent = days;
-      document.getElementById('hours').textContent = hours;
-      document.getElementById('minutes').textContent = minutes;
-      document.getElementById('seconds').textContent = seconds;
+      document.getElementById("days").textContent = days;
+      document.getElementById("hours").textContent = hours;
+      document.getElementById("minutes").textContent = minutes;
+      document.getElementById("seconds").textContent = seconds;
     }
 
-    // יצירת טבלת ייאוש - תא לכל יום
+    /* --------------------------
+       מחוון התקדמות (Progress Bar)
+       -------------------------- */
+    function updateProgressBar() {
+      const now = new Date();
+      const totalDuration = targetDate - startDate;
+      const currentProgress = now - startDate;
+
+      let progressPercentage = (currentProgress / totalDuration) * 100;
+      if (progressPercentage < 0) progressPercentage = 0;
+      if (progressPercentage > 100) progressPercentage = 100;
+
+      const progressBar = document.getElementById("progressBar");
+      progressBar.style.width = progressPercentage + "%";
+    }
+
+    /* --------------------------
+       חישוב שבוע הריון והצגת גודל העובר
+       -------------------------- */
+    function updateWeekInfo() {
+      const now = new Date();
+      // שבוע ההריון => הבדל בשבועות בין startDate ל-now
+      const oneWeek = 1000 * 60 * 60 * 24 * 7;
+      let currentWeek = Math.floor((now - startDate) / oneWeek);
+
+      if (currentWeek < 0) currentWeek = 0; // אם לא הגענו לתחילת ההריון
+      const weekInfoElem = document.getElementById("weekInfo");
+      weekInfoElem.textContent = `את בשבוע ${currentWeek} להריון`;
+
+      // מוצאים מה הגודל המשוער באותו שבוע
+      const babySizeElem = document.getElementById("babySize");
+      // חפש את השבוע הכי גדול שלא עולה על currentWeek
+      let sizeDescription = "";
+      for (let i = babySizeData.length - 1; i >= 0; i--) {
+        if (currentWeek >= babySizeData[i].week) {
+          sizeDescription = babySizeData[i].description;
+          break;
+        }
+      }
+
+      if (sizeDescription) {
+        babySizeElem.textContent = `העובר בערך בגודל של ${sizeDescription}!`;
+      } else {
+        babySizeElem.textContent = "מוקדם מדי למדוד גודל... תמשיכי לעקוב!";
+      }
+    }
+
+    /* --------------------------
+       יצירת טבלת ייאוש (ריבועי ימים)
+       -------------------------- */
     function generateDaysGrid() {
       const now = new Date();
       const differenceInDays = Math.ceil((targetDate - now) / (1000 * 60 * 60 * 24));
 
       const daysGrid = document.getElementById("daysGrid");
-      daysGrid.innerHTML = ""; // איפוס התוכן במקרה ומריצים שוב
+      daysGrid.innerHTML = ""; // איפוס התוכן
 
-      // אם יוצא מספר שלילי (כבר עברנו את התאריך), לא מציגים
+      // אם התאריך עבר או אין ימים להצגה
       if (differenceInDays <= 0) return;
 
       for (let i = 1; i <= differenceInDays; i++) {
@@ -155,7 +332,7 @@
         dayElem.classList.add("day");
         dayElem.textContent = i;
 
-        // אפשר לאפשר "סימון" היום כאשר לוחצים
+        // מאפשר "סימון" היום בלחיצה
         dayElem.addEventListener("click", () => {
           dayElem.classList.toggle("crossed");
         });
@@ -164,15 +341,26 @@
       }
     }
 
-    // עדכון ראשוני
+    /* --------------------------
+       קריאות ראשוניות + מרווחי רענון
+       -------------------------- */
+    // מיד בהתחלה
     updateCountdown();
+    updateProgressBar();
+    updateWeekInfo();
     generateDaysGrid();
 
-    // עדכון כל שנייה (ניתן לשנות לתדירות נמוכה יותר אם רוצים)
-    setInterval(updateCountdown, 1000);
+    // רענון ספירה לאחור ו־Progress Bar כל שנייה
+    setInterval(() => {
+      updateCountdown();
+      updateProgressBar();
+    }, 1000);
 
-    // אפשרות לעדכון טבלת הימים כל יום בחצות (כאן לדוגמה פעם בשעה נעדכן)
+    // רענון טבלת ייאוש כל שעה (יכול להיות גם פעם ביום)
     setInterval(generateDaysGrid, 1000 * 60 * 60);
+
+    // רענון מידע שבוע הריון (אפשר פעם ביום אם רוצים)
+    setInterval(updateWeekInfo, 1000 * 60 * 60 * 24);
   </script>
 </body>
 </html>
