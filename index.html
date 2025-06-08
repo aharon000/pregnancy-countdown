@@ -2,13 +2,12 @@
 <html lang="he">
 <head>
   <meta charset="UTF-8" />
-  <title>הספירה של יעל – ללא סופ"ש, עם אפקטים</title>
+  <title>הספירה של יעל – ללא סופ"ש + אפקט קאונטר</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- ספרייה לאנימציות css -->
+  <!-- animate.css לאנימציות -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-
-  <!-- ספרייה ל-Confetti (Canvas Confetti) -->
+  <!-- canvas-confetti לקונפטי -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 
   <style>
@@ -20,7 +19,7 @@
       background-color: #f7f7f7;
     }
 
-    /* חלוקה: תמונות למעלה, תוכן במרכז */
+    /* תמונות למעלה, מימין ומשמאל */
     .top-images-container {
       width: 100%;
       display: flex;
@@ -35,6 +34,7 @@
       box-shadow: 0 0 10px rgba(0,0,0,0.3);
     }
 
+    /* פריסת מרכז – ספירה וכו' */
     .main-layout {
       display: flex;
       justify-content: center;
@@ -42,7 +42,6 @@
       flex-direction: column;
       min-height: 100vh;
     }
-
     header {
       text-align: center;
       margin: 20px auto;
@@ -68,7 +67,7 @@
       margin-bottom: 30px;
     }
 
-    /* ספירה לאחור (ימי עבודה) */
+    /* ספירה לאחור (בימים=ימי עבודה, בשעות/דקות/שניות=זמן אמיתי) */
     .countdown-title {
       text-align: center;
       font-size: 1.5em;
@@ -123,7 +122,7 @@
       margin-bottom: 15px;
     }
 
-    /* טבלת ימים ללא שישי-שבת */
+    /* טבלת ימים (ללא שישי-שבת) */
     .grid-title {
       text-align: center;
       margin-top: 20px;
@@ -157,6 +156,36 @@
       color: #fff;
       text-decoration: line-through;
     }
+
+    /* --- אפקט Overlay גדול לקאונטר --- */
+    .counter-overlay {
+      position: fixed; /* מכסה את כל המסך */
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      z-index: 9999; /* מעל הכל */
+      opacity: 0; /* נסתיר בהתחלה */
+      pointer-events: none; /* שלא יתפוס קליקים */
+    }
+    .counter-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .overlay-content {
+      color: #fff;
+      font-size: 2.5em;
+      text-align: center;
+    }
+    .overlay-content span {
+      display: inline-block;
+      min-width: 70px; /* שיהיה קצת רווח */
+    }
+
   </style>
 </head>
 <body>
@@ -167,16 +196,35 @@
     <img src="1212.png" alt="יעל מימין" />
   </div>
 
+  <!-- Overlay גדול שמופיע עם האנימציה בהתחלה -->
+  <div id="counterOverlay" class="counter-overlay">
+    <div class="overlay-content animate__animated" id="overlayContent">
+      <!-- נציג כאן את days/hours/minutes/seconds בגדול -->
+      <div>
+        נותרו
+        <span id="overlayDays">0</span> ימים
+      </div>
+      <div>
+        <span id="overlayHours">0</span> שעות
+      </div>
+      <div>
+        <span id="overlayMinutes">0</span> דקות
+      </div>
+      <div>
+        <span id="overlaySeconds">0</span> שניות
+      </div>
+    </div>
+  </div>
+
   <div class="main-layout">
     <header id="headerArea" class="animate__animated">
       <h1>הספירה של יעל עד ללידה (ללא סופ"ש)</h1>
-      <!-- המשפט המעודד יוצג עם אפקט bounce -->
       <div id="quote" class="encouraging-message animate__animated"></div>
     </header>
 
     <div id="mainContainer" class="container animate__animated">
-      <!-- ספירה לאחור (ימי עבודה) -->
-      <div class="countdown-title">ימי עבודה שנותרו עד 2 בספטמבר 2025:</div>
+      <!-- ספירה לאחור -->
+      <div class="countdown-title">ימי עבודה שנותרו עד 2 בספטמבר 2025 (שעות,דקות,שניות - ריאליות):</div>
       <div class="countdown" id="countdown">
         <div>
           <span id="days">0</span>
@@ -212,13 +260,12 @@
   </div>
 
   <script>
-    /* הגדרות תאריך יעד */
-    const targetDate = new Date(2025, 8, 2); // 2 בספטמבר 2025
-    // 280 ימים אחורה
+    /* תאריך יעד (2 בספטמבר 2025) + התחלה (280 ימים לפני) */
+    const targetDate = new Date(2025, 8, 2);
     const daysOfPregnancy = 280;
     const startDate = new Date(targetDate.getTime() - daysOfPregnancy * 24 * 60 * 60 * 1000);
 
-    /* הודעות מעודדות */
+    /* משפטים מעודדים */
     const messages = [
       "כל יום מקרב אותנו לרגע המיוחל!",
       "זכרי לנוח ולהנות מהדרך – את עושה עבודה מדהימה!",
@@ -228,7 +275,7 @@
       "ההריון הזה הוא מסע מופלא – את נפלאה!"
     ];
 
-    /* מידע גודל העובר */
+    /* מידע גודל העובר לפי שבוע */
     const babySizeData = [
       { week: 4, description: "גרגר שומשום" },
       { week: 6, description: "גודל עדשה" },
@@ -242,7 +289,7 @@
       { week: 36, description: "גודל אבטיח קטן" },
     ];
 
-    /* פונקציה לחישוב ימי עבודה (ללא שישי-שבת) */
+    /* חישוב ימי עבודה (ללא שישי-שבת) */
     function businessDaysBetween(start, end) {
       let count = 0;
       let current = new Date(start);
@@ -256,27 +303,27 @@
       return count;
     }
 
-    /* ספירה לאחור לפי ימי עבודה */
+    /* סופרים Y ימים (ימי עבודה), אבל H/M/S כ-real-time */
     function updateCountdown() {
       const now = new Date();
-      if (now >= targetDate) {
-        document.getElementById('days').textContent = 0;
-        document.getElementById('hours').textContent = 0;
-        document.getElementById('minutes').textContent = 0;
-        document.getElementById('seconds').textContent = 0;
-        return;
-      }
 
+      // days = businessDays, hours/minutes/seconds = normal difference
       const workdaysLeft = businessDaysBetween(now, targetDate);
 
+      let diff = targetDate - now;
+      if (diff < 0) diff = 0;
+      let hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      let minutes = Math.floor((diff / (1000 * 60)) % 60);
+      let seconds = Math.floor((diff / 1000) % 60);
+
+      // עדכון בתצוגה
       document.getElementById('days').textContent = workdaysLeft;
-      // נשאיר שעות/דקות/שניות 0, כי לא מחשבים חצי ימי עבודה...
-      document.getElementById('hours').textContent = 0;
-      document.getElementById('minutes').textContent = 0;
-      document.getElementById('seconds').textContent = 0;
+      document.getElementById('hours').textContent = hours;
+      document.getElementById('minutes').textContent = minutes;
+      document.getElementById('seconds').textContent = seconds;
     }
 
-    /* Progress Bar (כללי, לפי תאריכים) */
+    /* Progress Bar */
     function updateProgressBar() {
       const now = new Date();
       const totalDuration = targetDate - startDate;
@@ -315,22 +362,22 @@
       }
     }
 
-    /* טבלת ימי עבודה (ללא שישי-שבת) */
+    /* טבלת ימים (ללא שישי-שבת) */
     function generateDaysGrid() {
-      const grid = document.getElementById('daysGrid');
-      grid.innerHTML = "";
+      const daysGrid = document.getElementById('daysGrid');
+      daysGrid.innerHTML = "";
 
       let current = new Date(startDate);
       const now = new Date();
 
       while (current < targetDate) {
-        let dayOfWeek = current.getDay();
+        const dayOfWeek = current.getDay();
         if (dayOfWeek !== 5 && dayOfWeek !== 6) {
-          // יוצרים ריבוע עבור היום
-          let dayElem = document.createElement("div");
+          // יוצרים תא
+          const dayElem = document.createElement("div");
           dayElem.classList.add("day");
 
-          // לדוגמה: תצוגת dd/mm
+          // dd/mm
           const d = current.getDate();
           const m = current.getMonth() + 1;
           dayElem.textContent = d + "/" + m;
@@ -343,58 +390,90 @@
             dayElem.classList.toggle("crossed");
           });
 
-          grid.appendChild(dayElem);
+          daysGrid.appendChild(dayElem);
         }
         current.setDate(current.getDate() + 1);
       }
     }
 
-    /* רענון */
+    /* רענון כולל */
     function refreshAll() {
       updateCountdown();
       updateProgressBar();
       updateWeekInfo();
     }
 
-    /* אפקט קונפטי (Canvas Confetti) */
+    /* קונפטי */
     function runConfetti() {
-      // חלקיקי קונפטי בספאם
       confetti({
-        particleCount: 100,
-        spread: 70,
+        particleCount: 120,
+        spread: 80,
         origin: { y: 0.6 }
       });
     }
 
-    // בעת טעינת הדף
+    /* אפקט Overlay גדול שמופיע בהתחלה */
+    function showCounterOverlay() {
+      // לחשב ערכים
+      const now = new Date();
+      const workdaysLeft = businessDaysBetween(now, targetDate);
+      let diff = targetDate - now;
+      if (diff < 0) diff = 0;
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((diff / (1000 * 60)) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
+
+      // לעדכן ב-Overlay
+      document.getElementById("overlayDays").textContent = workdaysLeft;
+      document.getElementById("overlayHours").textContent = hours;
+      document.getElementById("overlayMinutes").textContent = minutes;
+      document.getElementById("overlaySeconds").textContent = seconds;
+
+      // להראות Overlay
+      const overlay = document.getElementById("counterOverlay");
+      overlay.classList.add("show");
+      // להוסיף אנימציה zoomIn
+      const overlayContent = document.getElementById("overlayContent");
+      overlayContent.classList.remove("animate__zoomOut");
+      overlayContent.classList.add("animate__zoomIn");
+
+      // אחרי 2 שניות, נעשה zoomOut ואז נסגור
+      setTimeout(() => {
+        overlayContent.classList.remove("animate__zoomIn");
+        overlayContent.classList.add("animate__zoomOut");
+        // אחרי חצי שנייה נסיר לגמרי
+        setTimeout(() => {
+          overlay.classList.remove("show");
+        }, 500);
+      }, 2000);
+    }
+
+    /* אירוע טעינת העמוד */
     window.addEventListener('load', () => {
-      // 1) הגדר מסר מעודד
+      // הגרלת מסר
       const randomIndex = Math.floor(Math.random() * messages.length);
-      const quoteElem = document.getElementById("quote");
-      quoteElem.textContent = messages[randomIndex];
+      document.getElementById("quote").textContent = messages[randomIndex];
 
-      // 2) אנימציות כניסה: ניישם על container וכותרת
-      // אפשר לשחק עם סוגי אנימציות מ-animate.css (bounce, fadeIn, וכו')
-      const headerArea = document.getElementById("headerArea");
-      headerArea.classList.add('animate__fadeInDown');
+      // אנימציות כניסה כלליות
+      document.getElementById("headerArea").classList.add('animate__fadeInDown');
+      document.getElementById("mainContainer").classList.add('animate__fadeInUp');
+      document.getElementById("quote").classList.add('animate__bounceIn');
 
-      const mainContainer = document.getElementById("mainContainer");
-      mainContainer.classList.add('animate__fadeInUp');
-
-      // משפט מעודד עם bounce
-      quoteElem.classList.add('animate__bounceIn');
-
-      // 3) נפעיל קונפטי קטן
+      // קונפטי
       runConfetti();
+      // הצגת Overlay של הקאונטר בגודל מלא
+      showCounterOverlay();
 
-      // 4) רענון ראשוני + הגריד
+      // רענון ראשוני
       refreshAll();
       generateDaysGrid();
     });
 
-    // עדכונים מחזוריים
-    setInterval(refreshAll, 1000); // ספירה לאחור, progress
+    // רענון ספירה/Progress כל שנייה
+    setInterval(refreshAll, 1000);
+    // רענון טבלה כל שעה
     setInterval(generateDaysGrid, 1000 * 60 * 60);
+    // רענון שבוע הריון פעם ביום
     setInterval(updateWeekInfo, 1000 * 60 * 60 * 24);
   </script>
 </body>
