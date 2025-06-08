@@ -19,7 +19,8 @@
       background-size: cover;
       color: #333;
     }
-    /* שכבה חצי שקופה כדי שיהיה קל לקרוא טקסט */
+
+    /* שכבה חצי שקופה כדי שיהיה קל יותר לקרוא טקסט */
     .overlay {
       background-color: rgba(255, 255, 255, 0.8);
       min-height: 100vh; /* מכסה את כל הדף */
@@ -163,7 +164,7 @@
     <!-- אזור התוכן המרכזי -->
     <div class="container animate__animated animate__fadeInUp">
       <!-- ספירה לאחור -->
-      <div class="countdown-title">נותרו עד לתאריך היעד:</div>
+      <div class="countdown-title">נותרו עד לתאריך היעד (2 בספטמבר 2025):</div>
       <div class="countdown" id="countdown">
         <div>
           <span id="days">0</span>
@@ -200,32 +201,30 @@
 
   <script>
     /* --------------------------
-       הגדרות תאריכים לדוגמה
-    // תאריך לידה משוער (Target date)
-    const targetDate = new Date(2025, 8, 1);
-
-    // 40 שבועות = 280 ימים (אם רוצים 38 או 41, משחקים עם המספר)
+       תאריך יעד (2 בספטמבר 2025)
+       -------------------------- */
+    const targetDate = new Date(2025, 8, 2);
+    // 40 שבועות = 280 ימים
     const daysOfPregnancy = 280;
-    // חישוב תאריך התחלה
+    // חישוב תאריך התחלה אוטומטי
     const startDate = new Date(targetDate.getTime() - daysOfPregnancy * 24 * 60 * 60 * 1000);
-
 
     /* --------------------------
        הודעות מעודדות אקראיות
        -------------------------- */
     const messages = [
       "כל יום מקרב אותנו לרגע המיוחל!",
-      "זיכרי לנוח ולהנות מהדרך – את עושה עבודה מדהימה!",
+      "זכרי לנוח ולהנות מהדרך – את עושה עבודה מדהימה!",
       "עוד קצת ותוכלי להתפנק בחופשת הלידה!",
       "כל בעיטה קטנה מזכירה שאת יוצרת חיים חדשים!",
-      "תהני מכל רגע – והנה, אנחנו כמעט שם!"
+      "תהני מכל רגע – ואוטוטו זה קורה!",
+      "ההריון הזה הוא מסע מופלא – את נפלאה!"
     ];
     const randomIndex = Math.floor(Math.random() * messages.length);
     document.getElementById("quote").textContent = messages[randomIndex];
 
     /* --------------------------
-       נתונים על "גודל העובר" לפי שבוע
-       (דוגמה מאוד גנרית)
+       נתונים על "גודל העובר" לפי שבוע (דוגמה)
        -------------------------- */
     const babySizeData = [
       { week: 4, description: "גרגר שומשום" },
@@ -241,7 +240,7 @@
     ];
 
     /* --------------------------
-       חישוב ספירה לאחור
+       ספירה לאחור
        -------------------------- */
     function updateCountdown() {
       const now = new Date();
@@ -284,21 +283,20 @@
     }
 
     /* --------------------------
-       חישוב שבוע הריון והצגת גודל העובר
+       שבוע הריון + גודל העובר
        -------------------------- */
     function updateWeekInfo() {
       const now = new Date();
-      // שבוע ההריון => הבדל בשבועות בין startDate ל-now
+      // הבדל בשבועות בין startDate ל-now
       const oneWeek = 1000 * 60 * 60 * 24 * 7;
       let currentWeek = Math.floor((now - startDate) / oneWeek);
 
-      if (currentWeek < 0) currentWeek = 0; // אם לא הגענו לתחילת ההריון
+      if (currentWeek < 0) currentWeek = 0; // אם עדיין לא הגענו ל-startDate
       const weekInfoElem = document.getElementById("weekInfo");
       weekInfoElem.textContent = `את בשבוע ${currentWeek} להריון`;
 
-      // מוצאים מה הגודל המשוער באותו שבוע
+      // מציאת תיאור "גודל העובר"
       const babySizeElem = document.getElementById("babySize");
-      // חפש את השבוע הכי גדול שלא עולה על currentWeek
       let sizeDescription = "";
       for (let i = babySizeData.length - 1; i >= 0; i--) {
         if (currentWeek >= babySizeData[i].week) {
@@ -310,19 +308,19 @@
       if (sizeDescription) {
         babySizeElem.textContent = `העובר בערך בגודל של ${sizeDescription}!`;
       } else {
-        babySizeElem.textContent = "מוקדם מדי למדוד גודל... תמשיכי לעקוב!";
+        babySizeElem.textContent = "מוקדם מדי למדוד גודל... המשיכי לעקוב!";
       }
     }
 
     /* --------------------------
-       יצירת טבלת ייאוש (ריבועי ימים)
+       טבלת ייאוש (ריבועי ימים)
        -------------------------- */
     function generateDaysGrid() {
       const now = new Date();
       const differenceInDays = Math.ceil((targetDate - now) / (1000 * 60 * 60 * 24));
 
       const daysGrid = document.getElementById("daysGrid");
-      daysGrid.innerHTML = ""; // איפוס התוכן
+      daysGrid.innerHTML = "";
 
       // אם התאריך עבר או אין ימים להצגה
       if (differenceInDays <= 0) return;
@@ -342,25 +340,26 @@
     }
 
     /* --------------------------
-       קריאות ראשוניות + מרווחי רענון
+       רענון ראשוני + רענונים תקופתיים
        -------------------------- */
-    // מיד בהתחלה
+    // ריצה ראשונית בהתחלה
     updateCountdown();
     updateProgressBar();
     updateWeekInfo();
     generateDaysGrid();
 
-    // רענון ספירה לאחור ו־Progress Bar כל שנייה
+    // רענון ספירה לאחור כל שנייה
     setInterval(() => {
       updateCountdown();
       updateProgressBar();
     }, 1000);
 
-    // רענון טבלת ייאוש כל שעה (יכול להיות גם פעם ביום)
+    // רענון טבלת ייאוש כל שעה
     setInterval(generateDaysGrid, 1000 * 60 * 60);
 
-    // רענון מידע שבוע הריון (אפשר פעם ביום אם רוצים)
+    // רענון מידע שבוע הריון פעם ביום
     setInterval(updateWeekInfo, 1000 * 60 * 60 * 24);
+
   </script>
 </body>
 </html>
